@@ -110,7 +110,7 @@ tty.open = function() {
         thisCat = true;
       }
     }
-    if (!catting) {
+    if (!thisCat) {
       if (data.indexOf('ace start') === false) {
         tty.terms[id].write(data);
       } else {
