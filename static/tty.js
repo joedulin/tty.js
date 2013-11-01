@@ -3,6 +3,10 @@
  * Copyright (c) 2012-2013, Christopher Jeffrey (MIT License)
  */
 
+var catting = [];
+var tempfile = '';
+
+
 ;(function() {
 
 /**
@@ -91,6 +95,7 @@ tty.open = function() {
       tty.toggleLights();
     });
   }
+  tty.toggleLights();
 
   tty.socket.on('connect', function() {
     tty.reset();
@@ -99,7 +104,29 @@ tty.open = function() {
 
   tty.socket.on('data', function(id, data) {
     if (!tty.terms[id]) return;
-    tty.terms[id].write(data);
+    var thisCat = false;
+    for (var i=0;i<catting.length;i++) {
+      if (catting[i] == id) {
+        thisCat = true;
+      }
+    }
+    if (!catting) {
+      if (data.indexOf('ace start') === false) {
+        tty.terms[id].write(data);
+      } else {
+        catting.push(id);
+      }
+    } else {
+      if (data.indexOf('ace end') === false) {
+        tempfile += data;
+      } else {
+        for (var i=0;i<catting.length;i++) {
+          if (catting[i] == id) {
+            catting.splice(i,1);
+          }
+        }
+      }
+    }
   });
 
   tty.socket.on('kill', function(id) {
